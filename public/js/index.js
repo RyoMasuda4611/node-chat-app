@@ -9,22 +9,27 @@ socket.on('disconnect', function () {
 });
 
 socket.on('newMessage', function (message) {
-  console.log('New message', message);
   var formattedTime = moment(message.createdAt).format('LT');
-  var li = jQuery('<li></li>');
-  li.text(`${message.from}: ${formattedTime} :${message.text}`);
-  jQuery('#messages').append(li);
+  var template = jQuery('#message-template').html();
+  var html = Mustache.render(template, {
+      from: message.from,
+      text: message.text,
+      createdAt: formattedTime
+  });
+  jQuery('#messages').append(html);
 });
 
 socket.on('newLocationMessage', function (location) {
     var formattedTime = moment(location.createdAt).format('LT');
-    var li = jQuery('<li></li>');
-    var a = jQuery('<a target="_blank">My current location</a>')
-    a.attr('href', location.url);
-    li.text(`${location.from}: ${formattedTime}`)
-    li.append(a);
-    jQuery('#messages').append(li);
-  });
+    var template = jQuery('#location-message-template').html(); 
+    // 文字型の引数のみ
+    var html = Mustache.render(template, {
+      from: location.from,
+      url: location.url,
+      createdAt: formattedTime
+    });
+    jQuery('#messages').append(html);
+});
 
 jQuery('#message-form').on('submit', function (e) {
     e.preventDefault();
